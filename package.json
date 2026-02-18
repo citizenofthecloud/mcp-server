@@ -1,0 +1,43 @@
+{
+  "name": "@citizenofthecloud/mcp-server",
+  "version": "0.1.0",
+  "description": "MCP server for Citizen of the Cloud — agent identity verification, trust scoring, and registry access",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "bin": {
+    "cotc-mcp": "dist/index.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "prepublishOnly": "npm run build",
+    "start": "node dist/index.js",
+    "dev": "tsc --watch"
+  },
+  "keywords": [
+    "mcp",
+    "citizen-of-the-cloud",
+    "agent-identity",
+    "verification",
+    "trust",
+    "ed25519",
+    "model-context-protocol"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/citizenofthecloud/mcp-server"
+  },
+  "homepage": "https://www.citizenofthecloud.com",
+  "author": "Citizen of the Cloud",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.12.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "typescript": "^5.7.0"
+  }
+}
