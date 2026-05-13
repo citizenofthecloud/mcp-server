@@ -202,8 +202,10 @@ export class RegistryClient {
       return { verified: false, reason: "invalid_signature", agent, latency: Date.now() - start };
     }
 
-    // Log verification (fire-and-forget)
-    this.logVerification(cloudId, "verified", Date.now() - start).catch(() => {});
+    // Log verification (fire-and-forget). Uses "success" to match the
+    // /api/verify/log validResults whitelist — passing "verified" silently
+    // got rejected with 400 for a long time and the catch swallowed it.
+    this.logVerification(cloudId, "success", Date.now() - start).catch(() => {});
 
     return { verified: true, agent, timestamp, latency: Date.now() - start };
   }
