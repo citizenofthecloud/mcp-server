@@ -1,6 +1,6 @@
 {
   "name": "@citizenofthecloud/mcp-server",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "MCP server for Citizen of the Cloud — agent identity verification, trust scoring, and registry access",
   "type": "module",
   "main": "dist/index.js",
