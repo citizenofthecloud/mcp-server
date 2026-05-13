@@ -231,18 +231,21 @@ export class RegistryClient {
   }
 
   async reportAgent(
+    token: string,
     cloudId: string,
-    reason: string,
-    details?: string,
+    reportType: string,
+    evidence: string,
   ): Promise<{ success: boolean; error?: string }> {
-    const res = await this.fetch("/api/report", {
+    const res = await globalThis.fetch(`${this.registryUrl}/api/report`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
       body: JSON.stringify({
         cloud_id: cloudId,
-        reason,
-        details,
-        reporter_id: this.identity?.cloudId,
+        report_type: reportType,
+        evidence,
       }),
     });
     return res.json() as Promise<{ success: boolean; error?: string }>;

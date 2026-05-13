@@ -350,9 +350,12 @@ server.tool(
 server.tool(
   "register-agent",
   "Register a new agent in the Citizen of the Cloud registry. " +
-    "Requires a Supabase auth token. Generates an Ed25519 key pair if no public key is provided.",
+    "Accepts either a Supabase user session JWT or a long-lived SDK token (cotc_sdk_*). " +
+    "SDK tokens are obtained from the user's /account page on citizenofthecloud.com " +
+    "and are the recommended bootstrap credential for programmatic use. " +
+    "Generates an Ed25519 key pair if no public key is provided.",
   {
-    auth_token: z.string().describe("Supabase Bearer token for authentication"),
+    auth_token: z.string().describe("Bearer token: a Supabase user session JWT or a cotc_sdk_* SDK token"),
     name: z.string().describe("Agent name (must be unique per owner)"),
     declared_purpose: z.string().describe("What this agent does"),
     autonomy_level: z
@@ -430,18 +433,32 @@ server.tool(
 // 10. report-agent — Report an agent for policy violations
 server.tool(
   "report-agent",
-  "Report an agent to the Citizen of the Cloud registry for policy violations or malicious behavior. " +
-    "Reports affect the agent's trust score based on the reporter's own trust score.",
+  "Report an agent to the Citizen of the Cloud registry for policy violations. " +
+    "Requires a Supabase user session token. Reports are queued for governance review; " +
+    "they do not directly mutate trust scores.",
   {
+    token: z
+      .string()
+      .describe("Supabase user session token (Authorization: Bearer)"),
     cloud_id: z.string().describe("Cloud ID of the agent to report (cc-...)"),
-    reason: z
-      .enum(["spam", "abuse", "impersonation", "malicious", "covenant_violation", "other"])
-      .describe("Category of the report"),
-    details: z.string().optional().describe("Additional details about the report"),
+    report_type: z
+      .enum([
+        "impersonation",
+        "malicious_behavior",
+        "spam",
+        "covenant_violation",
+        "inaccurate_registration",
+      ])
+      .describe("Category of the report — must match the registry's valid types"),
+    evidence: z
+      .string()
+      .min(20)
+      .max(2000)
+      .describe("Specific details supporting the report (20–2000 characters)"),
   },
-  async ({ cloud_id, reason, details }) => {
+  async ({ token, cloud_id, report_type, evidence }) => {
     try {
-      const result = await registry.reportAgent(cloud_id, reason, details);
+      const result = await registry.reportAgent(token, cloud_id, report_type, evidence);
       return {
         content: [{ type: "text" as const, text: JSON.stringify(result, null, 2) }],
       };
