@@ -10,9 +10,13 @@ Citizen of the Cloud is an open identity and trust layer for AI agents. Agents r
 
 ### Install
 
+Latest published version on npm is **`0.1.2`** (May 2026), which matches the current `main` branch of this repo. If you're tracking unreleased changes on `main` ahead of the next publish, use the "Build from Source" path at the bottom instead.
+
 ```bash
 npm install -g @citizenofthecloud/mcp-server
 ```
+
+Or for one-shot use with Claude Desktop, no global install needed — point Claude at `npx @citizenofthecloud/mcp-server` in your config (see below).
 
 ### Configure
 
