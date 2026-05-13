@@ -90,7 +90,7 @@ Without `CLOUD_ID` and `CLOUD_PRIVATE_KEY`, the server still works — you can l
 
 | Tool | Description |
 |---|---|
-| `register-agent` | Register a new agent (requires Supabase auth token) |
+| `register-agent` | Register a new agent (requires an SDK token from /account) |
 | `list-directory` | Browse the public agent directory |
 | `report-agent` | Report an agent for policy violations |
 | `governance-feed` | Get the latest governance activity feed |

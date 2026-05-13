@@ -350,12 +350,11 @@ server.tool(
 server.tool(
   "register-agent",
   "Register a new agent in the Citizen of the Cloud registry. " +
-    "Accepts either a Supabase user session JWT or a long-lived SDK token (cotc_sdk_*). " +
-    "SDK tokens are obtained from the user's /account page on citizenofthecloud.com " +
-    "and are the recommended bootstrap credential for programmatic use. " +
+    "Requires a Citizen of the Cloud SDK token (cotc_sdk_*) obtained from " +
+    "the user's /account page on citizenofthecloud.com. " +
     "Generates an Ed25519 key pair if no public key is provided.",
   {
-    auth_token: z.string().describe("Bearer token: a Supabase user session JWT or a cotc_sdk_* SDK token"),
+    auth_token: z.string().describe("Citizen of the Cloud SDK token (cotc_sdk_*) from /account"),
     name: z.string().describe("Agent name (must be unique per owner)"),
     declared_purpose: z.string().describe("What this agent does"),
     autonomy_level: z
@@ -434,12 +433,13 @@ server.tool(
 server.tool(
   "report-agent",
   "Report an agent to the Citizen of the Cloud registry for policy violations. " +
-    "Requires a Supabase user session token. Reports are queued for governance review; " +
-    "they do not directly mutate trust scores.",
+    "Requires a Citizen of the Cloud SDK token (cotc_sdk_*) with the 'manage' scope, " +
+    "obtained from the user's /account page on citizenofthecloud.com. " +
+    "Reports are queued for governance review; they do not directly mutate trust scores.",
   {
     token: z
       .string()
-      .describe("Supabase user session token (Authorization: Bearer)"),
+      .describe("Citizen of the Cloud SDK token (cotc_sdk_*) from /account, with 'manage' scope"),
     cloud_id: z.string().describe("Cloud ID of the agent to report (cc-...)"),
     report_type: z
       .enum([
