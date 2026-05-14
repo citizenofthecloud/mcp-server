@@ -48,7 +48,7 @@ const registry = new RegistryClient(REGISTRY_URL, identity);
 
 const server = new McpServer({
   name: "citizen-of-the-cloud",
-  version: "0.1.0",
+  version: "0.1.3",
 });
 
 // ---------------------------------------------------------------------------
@@ -573,6 +573,68 @@ server.tool(
             }),
           },
         ],
+      };
+    }
+  },
+);
+
+// 14. prove-identity — Full self-prove loop (request-challenge + sign + respond)
+server.tool(
+  "prove-identity",
+  "Prove this MCP server's identity to the registry by running the full " +
+    "challenge / sign / respond loop in one call. The registry issues a nonce, " +
+    "this server signs it with CLOUD_PRIVATE_KEY, the registry validates against " +
+    "the registered public key. Bundles request-challenge + sign-challenge + " +
+    "respond-to-challenge into a single tool. Requires CLOUD_ID and " +
+    "CLOUD_PRIVATE_KEY to be configured.",
+  {},
+  async () => {
+    if (!identity) {
+      return {
+        content: [
+          {
+            type: "text" as const,
+            text: "Server identity not configured. Set CLOUD_ID and CLOUD_PRIVATE_KEY environment variables.",
+          },
+        ],
+        isError: true,
+      };
+    }
+
+    try {
+      // Step 1: request a fresh challenge nonce
+      const challenge = await registry.requestChallenge(identity.cloudId);
+      const nonce = (challenge as { nonce: string }).nonce;
+      if (!nonce) {
+        return {
+          content: [
+            {
+              type: "text" as const,
+              text: `Challenge response missing nonce: ${JSON.stringify(challenge)}`,
+            },
+          ],
+          isError: true,
+        };
+      }
+
+      // Step 2: sign the nonce (over its UTF-8 bytes, matching the server's check)
+      const privateKey = crypto.createPrivateKey({
+        key: process.env.CLOUD_PRIVATE_KEY!,
+        format: "pem",
+        type: "pkcs8",
+      });
+      const signature = crypto.sign(null, Buffer.from(nonce), privateKey).toString("base64");
+
+      // Step 3: submit the signed response
+      const result = await registry.respondToChallenge(identity.cloudId, nonce, signature);
+
+      return {
+        content: [{ type: "text" as const, text: JSON.stringify(result, null, 2) }],
+      };
+    } catch (err) {
+      return {
+        content: [{ type: "text" as const, text: `Prove identity error: ${err}` }],
+        isError: true,
       };
     }
   },
