@@ -166,10 +166,10 @@ Returns this server's Cloud ID, registry URL, and live passport (status, trust s
 ### Verification
 
 #### `verify-agent`
-Verifies an inbound `X-Cloud-*` triple (Cloud ID + timestamp + signature). Supports optional trust policy fields (`require_covenant`, `minimum_trust_score`, `allowed_autonomy_levels`).
+Verifies an inbound `X-Cloud-*` triple (Cloud ID + timestamp + signature). Supports optional trust policy fields (`require_covenant`, `minimum_trust_score`, `allowed_autonomy_levels`). The verified-agent payload includes a `reputation` block (see `lookup-agent` below).
 
 #### `lookup-agent`
-Read-only profile lookup. Returns name, purpose, autonomy level, trust score, capabilities, covenant status.
+Read-only profile lookup. Returns name, purpose, autonomy level, composite `trust_score`, capabilities, covenant status, **and a `reputation` block** with Layer 3 component signals: `verifications_30d`, `lifetime_verifications`, `success_rate_30d`/`_lifetime`, `reports_filed`/`_upheld`/`_dismissed`, `authenticated_proofs`, `account_age_days`, `first_seen`, `last_verified_at`. Signals refresh every 5 minutes; newly registered agents may return `reputation: null` — treat null as "not enough data yet," not as "zero across all signals."
 
 #### `check-trust`
 PASS/FAIL helper. Wrap `lookup-agent` + a threshold check in one call. Returns "PASS — Name trust=0.7" or "FAIL — below threshold=0.5".

@@ -60,7 +60,11 @@ server.tool(
   "verify-agent",
   "Verify an agent's identity using their Cloud ID, timestamp, and Ed25519 signature. " +
     "Performs registry lookup, status checks, trust score validation, covenant verification, " +
-    "and cryptographic signature verification.",
+    "and cryptographic signature verification. " +
+    "The returned agent payload includes a `reputation` block with Layer 3 component signals " +
+    "(verifications_30d, lifetime_verifications, success_rate_30d/lifetime, reports_filed/upheld/dismissed, " +
+    "authenticated_proofs, account_age_days, first_seen, last_verified_at) " +
+    "alongside the composite `trust_score`. Newly registered agents may return `reputation: null`.",
   {
     cloud_id: z.string().describe("The agent's Cloud ID (cc-...)"),
     timestamp: z.string().describe("ISO 8601 timestamp from X-Cloud-Timestamp header"),
@@ -114,7 +118,12 @@ server.tool(
 server.tool(
   "lookup-agent",
   "Look up an agent's public profile from the Citizen of the Cloud registry. " +
-    "Returns the agent's name, status, trust score, autonomy level, covenant status, and more.",
+    "Returns the agent's name, status, composite trust score, autonomy level, covenant status, " +
+    "and a `reputation` block with Layer 3 component signals " +
+    "(verifications_30d, lifetime_verifications, success_rate_30d/lifetime, reports_filed/upheld/dismissed, " +
+    "authenticated_proofs, account_age_days, first_seen, last_verified_at). " +
+    "Component signals refresh every 5 minutes; newly registered agents may return `reputation: null` — " +
+    "treat null as \"not enough data yet,\" not as \"zero across all signals.\"",
   {
     cloud_id: z.string().describe("The agent's Cloud ID (cc-...)"),
   },
